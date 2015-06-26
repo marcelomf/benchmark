@@ -1,11 +1,8 @@
 #!/bin/bash
-# "mongodb://admin:2KJYGXRliE51@127.0.0.1:27017/erp
-#dbs=( "elastic" "mongodb://127.0.0.1:27017/erp" "postgres://postgres:xrrNQ0kFtXfk@127.0.0.1:5432/erp" "mysql://admin:xdRrgDz6rg1v@127.0.0.1:3366/erp" )
 import_type=$1
 file_dir=$2
 uri_file="uri.txt"
 
-#for db in "${dbs[@]}"
 while IFS='' read -r uri || [[ -n $uri ]]
 do
   log=$(echo $uri | sed -e "s/:\/\//_/g" -e "s/:/_/g" -e "s/\//_/g" -e "s/@/_/g")
