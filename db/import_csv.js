@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 var fs = require("fs"),
     path = require("path"),
-    sax = require("sax"),
+    csv = require("csv"),
+    parse = require('csv-parse'),
+    transform = require('stream-transform'),
     Nfe = require("./nfe");
 
 Nfe.uri = process.argv[2];
@@ -17,38 +19,21 @@ var schema_full = {};
 
 var runStream = function(file) {
   var nfe;
-  var full_tag = null;
-  var tag = null;
-  var attrs;
-  var text;
-  var isRef = false;
-  var ref = {};
-
+  var output = [];
+  
   TOTAL_FILES_STARTED += 1;
 
-  var file_data = fs.readFileSync(file);
-  var saxStream = sax.createStream(true, false);
+  //var file_data = fs.readFileSync(file);
+  console.log(file);
 
-  saxStream.on("error", function(e){
-    console.error("Parser Error: ", e);
-    this._parser.error = null;
-    this._parser.resume();
-    nfe = Nfe;
-  });
+  var parser = parse({delimiter: ';'});
+  var csvStream = fs.createReadStream(file);
+  var transformer = transform(function(record, callback){
+    callback(null, record.join(' ')+'\n');
+  }, {parallel: 10});
 
-  saxStream.on("opentag", function(node){
-    tag = node.name;
-    if(!full_tag){
-      full_tag = tag;
-      nfe = Nfe;
-      nfe['xml_data'] = file_data;
-    } else {
-      full_tag += ">"+tag;
-    }
-    attrs = node.attributes;
-    //console.log("OPEN TAG: "+full_tag);
-  });
-
+  csvStream.pipe(parser).pipe(transformer).pipe(process.stdout);
+/*
   saxStream.on("text", function(t){
     if(!full_tag || t == '' || t == '\r\n' || t == '\n')
       return;
@@ -119,8 +104,7 @@ var runStream = function(file) {
     //console.log("Stream_ended: "+file);
     //process.exit(0);
   });
-  
-  fs.createReadStream(file).pipe(saxStream);  
+  */  
 }
 
 process.setMaxListeners(0);
