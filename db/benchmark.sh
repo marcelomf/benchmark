@@ -1,7 +1,8 @@
 #!/bin/bash
 # "mongodb://admin:2KJYGXRliE51@127.0.0.1:27017/erp
 #dbs=( "elastic" "mongodb://127.0.0.1:27017/erp" "postgres://postgres:xrrNQ0kFtXfk@127.0.0.1:5432/erp" "mysql://admin:xdRrgDz6rg1v@127.0.0.1:3366/erp" )
-file_dir=$1
+import_type=$1
+file_dir=$2
 uri_file="uri.txt"
 
 #for db in "${dbs[@]}"
@@ -30,8 +31,8 @@ do
     container_name="$driver"_"$port"_"$db"
   fi
   echo "BEGIN: $container_name - $log - $uri_file - $(date)"
-  docker start $container_name
-  #time node import_xml.js $uri $file_dir
-  docker stop $container_name
+  docker start $container_name > /dev/null
+  time node import_$import_type.js $uri $file_dir
+  docker stop $container_name > /dev/null
   echo "ENDED: $container_name - $log - $uri_file - $(date)"
 done < "$uri_file"
