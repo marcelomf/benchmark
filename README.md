@@ -13,7 +13,7 @@
 #### Generate and read global stats:
 Run monitor:
 
-`./monitor.sh global.log`
+`sudo ./monitor.sh global.log`
 
 Run read monitor:
 
