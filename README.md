@@ -9,3 +9,14 @@
 - [VM Hypervisors and Containers Technologies](https://github.com/marcelomf/benchmark)
 - [System Operations](https://github.com/marcelomf/benchmark)
 - [Algorithms](https://github.com/marcelomf/benchmark)
+
+#### Generate and read global stats:
+Run monitor:
+
+`./monitor.sh global.log`
+
+Run read monitor:
+
+`./readmonitor.sh global.log`
+
+`Consider https://github.com/merces/scripts/blob/master/pelicano.sh`
