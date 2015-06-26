@@ -31,6 +31,8 @@ Clone repo and entry dir:
 
 `git clone https://github.com/marcelomf/benchmark`
 
+Entry your directory:
+
 'cd benchmark/db'
 
 Create docker containers:
