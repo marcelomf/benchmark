@@ -7,6 +7,9 @@ var fs = require("fs"),
     Nfe = require("./nfe");
 
 Nfe.uri = process.argv[2];
+if(Nfe.uri.match(/^mariadb/g))
+  Nfe.uri = Nfe.uri.replace(/mariadb/g, "mysql")
+
 var file_dir = process.argv[3];
 var mode = process.argv[4];
 
