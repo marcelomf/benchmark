@@ -3,9 +3,9 @@
 #curl -sL https://deb.nodesource.com/setup_iojs_1.x | sudo bash -
 #apt-get install -y iojs
 
-#curl -sL https://deb.nodesource.com/setup_0.12 | bash -
-#sudo apt-get update -yq
-#sudo apt-get install --fix-missing -yq \
+curl -sL https://deb.nodesource.com/setup_0.12 | bash -
+sudo apt-get update -yq
+sudo apt-get install --fix-missing -yq \
   libmysqlclient-dev \
   mongodb-clients \
   mysql-client nodejs \
@@ -24,8 +24,8 @@
   g++ \
   build-essential
 
-#sudo npm update -g
-#sudo npm install -g \
+sudo npm update -g
+sudo npm install -g \
   bookshelf \
   caminte \
   elasticsearch \
