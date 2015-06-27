@@ -35,7 +35,13 @@ do
   host_port=$(echo $container_name | cut -d'_' -f2)
   container_port=$(cat $images | grep $driver | cut -d':' -f1)
   image=$(cat $images | grep $driver | cut -d':' -f3)
-  
+
+  if [ "$1" = "force" ]
+  then
+    echo -e "----- REMOVE CONTAINER: $container_name -"
+    docker rm -f $container_name
+  fi
+
   echo -e "----- UP CONTAINER: $container_name -----"
   if [ "$driver" = "mongodb"  ]
   then
