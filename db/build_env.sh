@@ -42,7 +42,7 @@ do
 
   if [ "$1" = "force" ]
   then
-    echo -e "----- REMOVE CONTAINER: $container_name -"
+    echo -e "----- REMOVE CONTAINER: $container_name"
     docker rm -f $container_name
   fi
 
@@ -58,7 +58,7 @@ do
     docker run -d -p 2424:2424 -p 2480:2480 -e $env_user=$user -e $env_pass=$pass --name orientdb_2424_$db joaodubas/orientdb
     ;;
   *)
-    docker run -d -p $host_port:$container_port --name $container_name $image
+    docker run -d -p $host_port:$container_port -e $env_user=$user -e $env_pass=$pass --name $container_name $image
     docker logs $container_name | head -n 30
     ;;
   esac
