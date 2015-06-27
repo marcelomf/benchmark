@@ -133,7 +133,7 @@ if(fs.lstatSync(file_dir).isDirectory()) {
     TOTAL_FILES = files.length;
     console.log("TOTAL_FILES: "+TOTAL_FILES);
     var idInterval;
-    files.forEach(function(nfe_file){ 
+    files.forEach(function(file){ 
       if((TOTAL_FILES_STARTED - TOTAL_FILES_ENDED) >= MAX_CONCURRENCY) {
         idInterval = setInterval(function(idInterval){
           if((TOTAL_FILES_STARTED - TOTAL_FILES_ENDED) <= MAX_CONCURRENCY) {
@@ -143,7 +143,7 @@ if(fs.lstatSync(file_dir).isDirectory()) {
         }, 300);
       } else {
         new runStream(path.join(file_dir, file));
-        //(function(file_full){ new runStream(nfe_file_full); })(path.join(file_dir, nfe_file));
+        //(function(file_full){ new runStream(file_full); })(path.join(file_dir, file));
       }
     });
   });
