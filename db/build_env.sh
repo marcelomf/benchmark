@@ -91,6 +91,9 @@ do
 
   echo -e "----- UP CONTAINER: $container_name -----"
   case "$driver" in
+  "elastic")
+    sudo docker run -d -p 9200:9200 --name $container_name tutum/elasticsearch
+    ;;
   "mongodb")
     sudo docker run -d -p 27017:27017 -p 28017:28017 -e AUTH=no --name $container_name tutum/mongodb
     ;;
@@ -104,7 +107,27 @@ do
     sudo docker run -d -p $host_port:$container_port -e $env_user=$user -e $env_pass=$pass --name $container_name $image
     ;;
   esac
-  sleep 2
+  
+  echo -e "----- CREATE DATABASE: $db -----"
+  sleep 5
+  case "$driver" in
+  "postgres")
+    PGPASSWORD="postgres" psql -h 127.0.0.1 -p $host_port -U $user -c "CREATE DATABASE $db;"
+    ;;
+  "mysql")
+    mysql -h 127.0.0.1 -P $host_port -u$user -p$pass -e "CREATE DATABASE $db;"
+    ;;
+  "mariadb")
+    mysql -h 127.0.0.1 -P $host_port -u$user -p$pass -e "CREATE DATABASE $db;"
+    ;;
+  "mongodb")
+    echo "use $db" | mongo --host 127.0.0.1 --port 27017 #--user $user --pass $pass
+    mysql -h 127.0.0.1 -P $host_port -u$user -p$pass -e "CREATE DATABASE $db;"
+    ;;
+  *)
+    echo "----- $container_name DONT HAVE $db!"
+    ;;
+  esac
   echo -e "----- STOP CONTAINER: $container_name -----"
   sudo docker stop $container_name
 done < "$uri_file"
