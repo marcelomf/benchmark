@@ -115,14 +115,13 @@ do
     PGPASSWORD="postgres" psql -h 127.0.0.1 -p $host_port -U $user -c "CREATE DATABASE $db;"
     ;;
   "mysql")
-    mysql -h 127.0.0.1 -P $host_port -u$user -p$pass -e "CREATE DATABASE $db;"
+    mysql -h 127.0.0.1 -P $host_port -u $user -p$pass -e "CREATE DATABASE $db;"
     ;;
   "mariadb")
-    mysql -h 127.0.0.1 -P $host_port -u$user -p$pass -e "CREATE DATABASE $db;"
+    mysql -h 127.0.0.1 -P $host_port -u $user -p$pass -e "CREATE DATABASE $db;"
     ;;
   "mongodb")
-    echo "use $db" | mongo --host 127.0.0.1 --port 27017 #--user $user --pass $pass
-    mysql -h 127.0.0.1 -P $host_port -u$user -p$pass -e "CREATE DATABASE $db;"
+    echo "use $db" | mongo --host 127.0.0.1 --port $host_port #--user $user --pass $pass
     ;;
   *)
     echo "----- $container_name DONT HAVE $db!"
