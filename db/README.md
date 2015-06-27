@@ -33,13 +33,13 @@ Clone repo and entry dir:
 
 `cd benchmark/db`
 
-Create docker containers:
-
-`sudo ./build_env.sh`
-
 Create your uri.txt file with password of databases(see the password with docker logs command):
 
 `vim|nano|joe uri.txt`
+
+Create docker containers based in uri.txt file:
+
+`sudo su -c "./build_env.sh force"`
 
 Run your benchmark:
 
