@@ -4,8 +4,8 @@
 #apt-get install -y iojs
 
 curl -sL https://deb.nodesource.com/setup_0.12 | bash -
-apt-get update -yq
-apt-get install --fix-missing -yq \
+sudo apt-get update -yq
+sudo apt-get install --fix-missing -yq \
   libmysqlclient-dev \
   mongodb-clients \
   mysql-client nodejs \
@@ -86,28 +86,30 @@ do
   if [ "$1" = "force" ]
   then
     echo -e "----- REMOVE CONTAINER: $container_name"
-    docker rm -f $container_name
+    sudo docker rm -f $container_name
   fi
 
   echo -e "----- UP CONTAINER: $container_name -----"
   case "$driver" in
   "mongodb")
-    docker run -d -p 27017:27017 -p 28017:28017 -e AUTH=no --name mongodb_27017_$db tutum/mongodb
+    sudo docker run -d -p 27017:27017 -p 28017:28017 -e AUTH=no --name $container_name tutum/mongodb
     ;;
   "riak")
-    docker run -d -p 8087:8087 -p 8098:8098 -e $env_user=$user -e $env_pass=$pass --name riak_8087_$db tutum/riak
+    sudo docker run -d -p 8087:8087 -p 8098:8098 -e $env_user=$user -e $env_pass=$pass --name $container_name tutum/riak
     ;;
   "orientdb")
-    docker run -d -p 2424:2424 -p 2480:2480 -e $env_user=$user -e $env_pass=$pass --name orientdb_2424_$db joaodubas/orientdb
+    sudo docker run -d -p 2424:2424 -p 2480:2480 -e $env_user=$user -e $env_pass=$pass --name $container_name joaodubas/orientdb
     ;;
   *)
-    docker run -d -p $host_port:$container_port -e $env_user=$user -e $env_pass=$pass --name $container_name $image
-    docker logs $container_name | head -n 30
+    sudo docker run -d -p $host_port:$container_port -e $env_user=$user -e $env_pass=$pass --name $container_name $image
     ;;
   esac
+  sleep 2
+  echo -e "----- STOP CONTAINER: $container_name -----"
+  sudo docker stop $container_name
 done < "$uri_file"
 
-docker run -d -p 5601:5601 --name kibana_5601_bench --link elastic:elasticsearch kibana
-docker logs kibana_5601_$db | head -n 30
+sudo docker run -d -p 5601:5601 --name kibana_5601_bench --link elastic:elasticsearch kibana
+sudo docker logs kibana_5601_$db | head -n 30
 
-#docker pull devdb/kibana
+sudo docker pull devdb/kibana
