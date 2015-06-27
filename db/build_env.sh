@@ -109,7 +109,7 @@ do
   esac
   
   echo -e "----- CREATE DATABASE: $db -----"
-  sleep 5
+  sleep 7
   case "$driver" in
   "postgres")
     PGPASSWORD="postgres" psql -h 127.0.0.1 -p $host_port -U $user -c "CREATE DATABASE $db;"
@@ -127,8 +127,8 @@ do
     echo "----- $container_name DONT HAVE $db!"
     ;;
   esac
-  echo -e "----- STOP CONTAINER: $container_name -----"
-  sudo docker stop $container_name
+  #echo -e "----- STOP CONTAINER: $container_name -----"
+  #sudo docker stop $container_name
 done < "$uri_file"
 
 sudo docker run -d -p 5601:5601 --name kibana_5601_bench --link elastic:elasticsearch kibana
