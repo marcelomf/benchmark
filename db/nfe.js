@@ -10,11 +10,6 @@ var elastic = new elasticsearch.Client();
 //var caminte = require("caminte");
 
 var Nfe, nfe_schema, uri;
-//var uri = "mongodb://admin:2KJYGXRliE51@127.0.0.1:27017/erp";
-//var uri = "mongodb://127.0.0.1:27017/erp";
-//var uri = "postgres://postgres:xrrNQ0kFtXfk@127.0.0.1:5432/erp";
-//var uri = "mysql://admin:w5HbiqPLDOdU@127.0.0.1:49153/erp";
-//var uri = "mysql://admin:xdRrgDz6rg1v@127.0.0.1:3366/erp";
 
 var bypass_data = /xml_data|sequelizeSave|ormSave|toObject|generateSchema|mongooseSave|syncSchema|elasticSave|uri/g;
 
