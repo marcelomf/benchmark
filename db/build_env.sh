@@ -5,7 +5,7 @@
 
 curl -sL https://deb.nodesource.com/setup_0.12 | bash -
 apt-get update -y
-apt-get install -y libmysqlclient-dev mongodb-clients mysql-client nodejs postgresql-client postgresql-server-dev-9.3 curl docker.io sudo
+apt-get install -y libmysqlclient-dev mongodb-clients mysql-client nodejs postgresql-client postgresql-server-dev-9.3 curl docker.io sudo make
 sudo npm update -g
 sudo npm install -g bookshelf caminte elasticsearch mongodb mongoose mysql orm pg pg-hstore pg-native sax sequelize sequelize-cli sqlite3 tedious underscore-cli sql-query loopback-datasource-juggler loopback-connector-mongodb ya-csv fast-csv csv-streamify csv csv-parse stream-transform
 
