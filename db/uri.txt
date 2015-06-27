@@ -1,5 +1,6 @@
 elastic://127.0.0.1:9200/bench
 mongodb://127.0.0.1:27017/bench
 postgres://postgres:xrrNQ0kFtXfk@127.0.0.1:5432/bench
-mysql://admin:xdRrgDz6rg1v@127.0.0.1:3366/bench
 mariadb://admin:xdRrgDz6rg1v@127.0.0.1:3366/bench
+mysql://root:root@127.0.0.1:3306/bench
+percona://root:root@127.0.0.1:3300/bench

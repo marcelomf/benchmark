@@ -21,6 +21,9 @@ docker logs mysql_3306_$db | head -n 30
 docker run -d -p 3366:3306 --name mariadb_3366_$db tutum/mariadb
 docker logs mariadb_3366_$db | head -n 30
 
+docker run -d -p 3300:3306 --name percona_3300_$db percona
+docker logs percona_3300_$db | head -n 30
+
 docker run -d -p 27017:27017 -p 28017:28017 -e AUTH=no --name mongodb_27017_$db tutum/mongodb
 docker logs mongodb_27017_$db | grep "mongo admin"
 
