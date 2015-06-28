@@ -9,18 +9,19 @@ var elastic = new elasticsearch.Client();
 //var bookshelf = require("bookshelf");
 //var caminte = require("caminte");
 
-var Nfe, nfe_schema, uri;
+var Register, data_schema, uri;
 
-var bypass_data = /xml_data|sequelizeSave|ormSave|toObject|generateSchema|mongooseSave|syncSchema|elasticSave|uri/g;
+var bypass_data = /csv_data|xml_data|sequelizeSave|ormSave|toObject|generateSchema|mongooseSave|syncSchema|elasticSave|uri/g;
 
-var NfeData = {
+var Data = {
+  csv_data: null,
   xml_data: null,
   toObject: function() {
     var object = {};
-    Object.keys(NfeData).forEach(function(key, index) {
+    Object.keys(Data).forEach(function(key, index) {
       if(key.match(bypass_data)) return; 
       object[key] = this[key];
-    }, NfeData);
+    }, Data);
     return JSON.parse(JSON.stringify(object));
   }
 }
@@ -28,11 +29,11 @@ var NfeData = {
 var syncSchema = function(options, callback) {
   if(options.type == "sequelize") {
     var sequelize = new Sequelize(uri, { logging: false });
-    var Nfe = sequelize.define('nfe_sequelize', options.schema, {
+    Register = sequelize.define('data_sequelize', options.schema, {
       freezeTableName: true // Model tableName will be the same as the model name
     });
 
-    Nfe.sync({force: true})
+    Register.sync({force: true})
     .then(function(){
       console.log("Table created sequelize.");
       callback();
@@ -45,7 +46,7 @@ var syncSchema = function(options, callback) {
     orm.connect(uri, function (err, db) {
       if (err) { console.log(err); callback(); }
       db.settings.set('instance.returnAllErrors', true);
-      var Nfe = db.define("nfe_orm", options.schema); 
+      var Register = db.define("data_orm", options.schema); 
       db.sync(function(err) { 
         if(err) console.log(err);
         console.log("Table created orm.");
@@ -59,7 +60,7 @@ var syncSchema = function(options, callback) {
 }
 
 var generateSchema = function(schemaType) {
-  var nfe_schema = {};
+  var data_schema = {};
   if(schemaType == "sequelize") {
     datetype = Sequelize.DATE; // ONLYDATE
     doubletype = Sequelize.DOUBLE;
@@ -77,49 +78,48 @@ var generateSchema = function(schemaType) {
     stringtype = String;
   } else { return null; }
 
-  Object.keys(NfeData).forEach(function(key, index) {
+  Object.keys(Data).forEach(function(key, index) {
     if(key.match(bypass_data)) return;       
     
     if(this[key] instanceof Date)
-      nfe_schema[key] = datetype; // ONLYDATE
+      data_schema[key] = datetype; // ONLYDATE
     else if(!isNaN(this[key]) && this[key].toString().indexOf('.') != -1 && this[key].toString().length <= 10)
-      nfe_schema[key] = doubletype;
+      data_schema[key] = doubletype;
     else if(!isNaN(this[key]) && this[key].toString().length <= 10)
-      nfe_schema[key] = integertype
+      data_schema[key] = integertype
     else
-      nfe_schema[key] = stringtype
-  }, NfeData);
+      data_schema[key] = stringtype
+  }, Data);
 
-  return nfe_schema;
+  return data_schema;
 }
 
 var sequelizeSave = function (callback){
-  var sequelize = new Sequelize(NfeData.uri, { logging: false });
-  var nfe_schema = generateSchema("sequelize");
+  var sequelize = new Sequelize(Data.uri, { logging: false });
+  data_schema = generateSchema("sequelize");
   
-  var Nfe = sequelize.define('nfe_sequelize', nfe_schema, {
+  var Register = sequelize.define('data_sequelize', data_schema, {
     freezeTableName: true // Model tableName will be the same as the model name
   });
 
-  Nfe.sync()
+  Register.sync()
   .then(function(){
     // Table created
-    //console.log(NfeData.toObject());
-    Nfe.create(NfeData.toObject())
-    .then(function(data) {
-      return callback(null, data)
+    Register.create(Data.toObject())
+    .then(function(register) {
+      return callback(null, register)
     });
   }, function(err){ return callback(err); });
 }
 
 var ormSave = function(callback) { 
   function setup(db, callback){
-    var nfe_schema = generateSchema("orm");
-    var Nfe = db.define("nfe_orm", nfe_schema);
+    data_schema = generateSchema("orm");
+    var Register = db.define("data_orm", data_schema);
     
     db.sync(function(err) { 
       if(err) return callback(err);
-      Nfe.create(NfeData.toObject(), function(err) {
+      Register.create(Data.toObject(), function(err) {
         db.close();
         db = null;
         if (err) return callback(err);
@@ -128,7 +128,7 @@ var ormSave = function(callback) {
     });       
   }
 
-  orm.connect(NfeData.uri, function (err, db) {
+  orm.connect(Data.uri, function (err, db) {
     if (err) return callback(err);
     db.settings.set('instance.returnAllErrors', true);
     setup(db, callback);
@@ -136,12 +136,12 @@ var ormSave = function(callback) {
 }
 
 var mongooseSave = function(callback) {
-  nfe_schema = generateSchema("mongoose");
-  if(!Nfe) Nfe = mongoose.model('Nfe', nfe_schema);
-  var nfe = new Nfe(NfeData.toObject());
-  nfe.save(function(err){
+  data_schema = generateSchema("mongoose");
+  if(!Register) Register = mongoose.model('Data', data_schema);
+  var register = new Register(Data.toObject());
+  register.save(function(err){
     if(err) return callback(err);
-    else return callback(null, nfe);
+    else return callback(null, register);
   });
 }
 
@@ -152,17 +152,16 @@ var elasticSave = function(callback) {
   });*/
  
   elastic.index({
-    index: "erp",
-    type: "nfe",
-    //id: NfeData['nfeProc_protNFe_infProt_chNFe'],
-    body: NfeData.toObject()
+    index: "bench",
+    type: "register",
+    body: Data.toObject()
   }, function(err, res) {
     if(err) return callback(err);
     else return callback(null, res);
   });
 }
 
-module.exports = exports = NfeData;
+module.exports = exports = Data;
 module.exports.generateSchema = exports.generateSchema = generateSchema;
 module.exports.syncSchema = exports.syncSchema = syncSchema;
 module.exports.sequelizeSave = exports.sequelizeSave = sequelizeSave;
