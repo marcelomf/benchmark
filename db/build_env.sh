@@ -86,7 +86,7 @@ do
   env_user=$(cat $images | grep $driver | cut -d':' -f4)
   env_pass=$(cat $images | grep $driver | cut -d':' -f5)
 
-  if [ "$1" = "force" ]
+  if [ "$mode" = "force" ]
   then
     echo -e "----- REMOVE CONTAINER: $container_name"
     sudo docker rm -f $container_name
