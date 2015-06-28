@@ -4,6 +4,10 @@ var fs = require("fs"),
     Data = require("./data"),
     sax = require("sax");
 
+var TOTAL_FILES_ENDED = 0;
+var TOTAL_FILES_STARTED = 0;
+var TOTAL_FILES_ERROR = 0;
+
 var Import = function(params, callback) {
   var data;
   var full_tag = null;
@@ -22,14 +26,16 @@ var Import = function(params, callback) {
     this._parser.error = null;
     this._parser.resume();
     data = Data;
+    data.uri = params.uri;
   });
 
   saxStream.on("opentag", function(node){
     tag = node.name;
-    if(!full_tag){
+    if(!full_tag) {
       full_tag = tag;
-      nfe = Nfe;
-      nfe['xml_data'] = file_data;
+      data = Data;
+      data.uri = params.uri;
+      data['xml'] = file_data;
     } else {
       full_tag += ">"+tag;
     }
@@ -69,16 +75,16 @@ var Import = function(params, callback) {
       console.log("Saving: "+file+" - "+TOTAL_FILES_STARTED);
       //console.log(nfe);
       callback = function(err, data) {
-        if(err) console.log("Error: "+err+" - "+(TOTAL_FILES_ERROR+=1));
-        else console.log("Saved: "+file);
+        if(err) console.error("Error: "+err+" - "+(TOTAL_FILES_ERROR+=1));
+        else console.log("Saved: "+params.file);
         TOTAL_FILES_ENDED += 1;
         if(TOTAL_FILES_ENDED+TOTAL_FILES_ERROR >= TOTAL_FILES) {
           console.log("TOTAL_FILES_ENDED: "+TOTAL_FILES_ENDED);
           console.log("TOTAL_FILES_ERROR: "+TOTAL_FILES_ERROR);
-          if(mode == "sync") {
-            if(Data.uri.match(/^mysql|postgres|sqlite|mongo/g))
-              Data.syncSchema({type: "orm", schema: schema_full}, function(){ process.exit(0); });
-            else if(Data.uri.match(/^elastic/g))
+          if(params.mode == "sync") {
+            if(data.uri.match(/^mysql|postgres|sqlite|mongo/g))
+              data.syncSchema({type: "orm", schema: schema_full}, function(){ process.exit(0); });
+            else if(data.uri.match(/^elastic/g))
               process.exit(0);
             else process.exit(0);
             //else if(Data.uri.match(/^mongo/g))
@@ -87,15 +93,15 @@ var Import = function(params, callback) {
         }
       }
 
-      if(mode == "sync") {
-        var schema_current = Nfe.generateSchema("orm");
+      if(params.mode == "sync") {
+        var schema_current = Data.generateSchema("orm");
         for (var field in schema_current) { schema_full[field] = schema_current[field]; }
         callback(null, {});
       } else {
-        if(Data.uri.match(/^mysql|postgres|sqlite|mongo/g))
-          Data.ormSave(callback);
-        else if(Data.uri.match(/^elastic/g))
-          Data.elasticSave(callback);
+        if(data.uri.match(/^mysql|postgres|sqlite|mongo/g))
+          data.ormSave(callback);
+        else if(data.uri.match(/^elastic/g))
+          data.elasticSave(callback);
         else callback(null, {});
         //else if(Data.uri.match(/^mongo/g))
           //Data.mongooseSave(callback);
@@ -108,7 +114,7 @@ var Import = function(params, callback) {
     //process.exit(0);
   });
   
-  fs.createReadStream(file).pipe(saxStream);  
+  fs.createReadStream(params.file).pipe(saxStream);  
 }
 
 module.exports.Import = exports.Import = Import;

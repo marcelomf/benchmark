@@ -14,8 +14,9 @@ var Register, data_schema, uri;
 var bypass_data = /csv_data|xml_data|sequelizeSave|ormSave|toObject|generateSchema|mongooseSave|syncSchema|elasticSave|uri/g;
 
 var Data = {
-  csv_data: null,
-  xml_data: null,
+  csv: null,
+  xml: null,
+  json: null,
   toObject: function() {
     var object = {};
     Object.keys(Data).forEach(function(key, index) {

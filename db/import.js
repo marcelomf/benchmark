@@ -3,7 +3,6 @@ var fs = require("fs"),
     path = require("path"),
     ixml = require("./import_xml"),
     icsv = require("./import_csv"),
-    Data = require("./data");
 
 var type = process.argv[2];
 var uri = process.argv[3]; // 1
@@ -22,7 +21,7 @@ var MAX_CONCURRENCY = 16;
 process.setMaxListeners(0);
 
 var callbackImport = function(err, result) {
-  if(err) console.log("Error: import "+result.file+" "+result.uri+" "+err);
+  if(err) console.error("Error: import "+result.file+" "+result.uri+" "+err);
   else console.log("Successful: import "+result.file+" "+result.uri);
   
   TOTAL_FILES_ENDED += result.TOTAL_FILES_ENDED;
@@ -36,7 +35,7 @@ var Import = {
     else if(type == "csv")
       new icsv({file: file, uri: uri}, callbackImport);
     else
-      console.log("Error: invalid import type("+type+").")
+      console.error("Error: invalid import type("+type+").")
     TOTAL_FILES_STARTED += 1;
   }
 }
