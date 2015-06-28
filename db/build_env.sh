@@ -1,57 +1,5 @@
 #!/bin/bash
-
-#curl -sL https://deb.nodesource.com/setup_iojs_1.x | sudo bash -
-#apt-get install -y iojs
-
-curl -sL https://deb.nodesource.com/setup_0.12 | bash -
-sudo apt-get update -yq
-sudo apt-get install --fix-missing -yq \
-  libmysqlclient-dev \
-  mongodb-clients \
-  mysql-client nodejs \
-  postgresql-client \
-  postgresql-server-dev-9.3 \
-  curl \
-  docker.io \
-  sudo \
-  make \
-  wget \
-  git-core \
-  git \
-  python-software-properties \
-  vim \
-  software-properties-common \
-  g++ \
-  build-essential
-
-sudo npm update -g
-sudo npm install -g \
-  bookshelf \
-  caminte \
-  elasticsearch \
-  mongodb \
-  mongoose \
-  mysql \
-  orm \
-  pg \
-  pg-hstore \
-  pg-native \
-  sax \
-  sequelize \
-  sequelize-cli \
-  sqlite3 \
-  tedious \
-  underscore-cli \
-  sql-query \
-  loopback-datasource-juggler \
-  loopback-connector-mongodb \
-  ya-csv \
-  fast-csv \
-  csv-streamify \
-  csv \
-  csv-parse \
-  stream-transform
-
+mode=$1
 uri_file="uri.txt"
 images=$(mktemp)
 cat << EOF > $images
@@ -69,6 +17,61 @@ cat << EOF > $images
 8983:solr:makuk66/docker-solr:NULL_USER:NULL_PASS
 8080:hadoop:sequenceiq/hadoop-docker:NULL_USER:NULL_PASS
 EOF
+
+#curl -sL https://deb.nodesource.com/setup_iojs_1.x | sudo bash -
+#apt-get install -y iojs
+
+if [ -z "$mode" ] #no argument
+then
+  curl -sL https://deb.nodesource.com/setup_0.12 | bash -
+  sudo apt-get update -yq
+  sudo apt-get install --fix-missing -yq \
+    libmysqlclient-dev \
+    mongodb-clients \
+    mysql-client nodejs \
+    postgresql-client \
+    postgresql-server-dev-9.3 \
+    curl \
+    docker.io \
+    sudo \
+    make \
+    wget \
+    git-core \
+    git \
+    python-software-properties \
+    vim \
+    software-properties-common \
+    g++ \
+    build-essential
+
+  sudo npm update -g
+  sudo npm install -g \
+    bookshelf \
+    caminte \
+    elasticsearch \
+    mongodb \
+    mongoose \
+    mysql \
+    orm \
+    pg \
+    pg-hstore \
+    pg-native \
+    sax \
+    sequelize \
+    sequelize-cli \
+    sqlite3 \
+    tedious \
+    underscore-cli \
+    sql-query \
+    loopback-datasource-juggler \
+    loopback-connector-mongodb \
+    ya-csv \
+    fast-csv \
+    csv-streamify \
+    csv \
+    csv-parse \
+    stream-transform
+fi
 
 while IFS='' read -r uri || [[ -n $uri ]]
 do
@@ -92,16 +95,16 @@ do
   echo -e "----- UP CONTAINER: $container_name -----"
   case "$driver" in
   "elastic")
-    sudo docker run -d -p 9200:9200 --name $container_name tutum/elasticsearch
+    sudo docker run -d -p $host_port:$container_port --name $container_name $image
     ;;
   "mongodb")
-    sudo docker run -d -p 27017:27017 -p 28017:28017 -e AUTH=no --name $container_name tutum/mongodb
+    sudo docker run -d -p $host_port:$container_port -p 28017:28017 -e AUTH=no --name $container_name $image
     ;;
   "riak")
-    sudo docker run -d -p 8087:8087 -p 8098:8098 -e $env_user=$user -e $env_pass=$pass --name $container_name tutum/riak
+    sudo docker run -d -p 8097:8097 -p $host_port:$container_port -e $env_user=$user -e $env_pass=$pass --name $container_name $image
     ;;
   "orientdb")
-    sudo docker run -d -p 2424:2424 -p 2480:2480 -e $env_user=$user -e $env_pass=$pass --name $container_name joaodubas/orientdb
+    sudo docker run -d -p 2424:2424 -p $host_port:$container_port -e $env_user=$user -e $env_pass=$pass --name $container_name $image
     ;;
   *)
     sudo docker run -d -p $host_port:$container_port -e $env_user=$user -e $env_pass=$pass --name $container_name $image
@@ -131,7 +134,7 @@ do
   #sudo docker stop $container_name
 done < "$uri_file"
 
-sudo docker run -d -p 5601:5601 --name kibana_5601_bench --link elastic:elasticsearch kibana
-sudo docker logs kibana_5601_$db | head -n 30
+#sudo docker run -d -p 5601:5601 --name kibana_5601_bench --link elastic:elasticsearch kibana
+#sudo docker logs kibana_5601_$db | head -n 30
 
-sudo docker pull devdb/kibana
+#sudo docker pull devdb/kibana
