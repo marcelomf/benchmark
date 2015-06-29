@@ -19,7 +19,7 @@ var TOTAL_REGISTER = 0;
 var TOTAL_REGISTER_ENDED = 0;
 var TOTAL_REGISTER_STARTED = 0;
 var TOTAL_REGISTER_ERROR = 0;
-var MAX_CONCURRENCY = 500;
+var MAX_CONCURRENCY = 50;
 var schema_full = {};
 var POOL = [];
 
