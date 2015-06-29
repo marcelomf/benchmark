@@ -82,7 +82,7 @@ var ImportXml = function(params, callbackImport) {
           result.TOTAL_REGISTER_ENDED+=1;
         }
         
-        result.schema = data.generateSchema("orm");
+        result.schema = data.generateSchema("orm", data);
         
         if(result.TOTAL_REGISTER_ENDED+result.TOTAL_REGISTER_ERROR >= result.TOTAL_REGISTER) {
           result.data.push(resultData);
