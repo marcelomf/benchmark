@@ -1,14 +1,10 @@
-#!/usr/bin/env node
 var fs = require("fs"),
     path = require("path"),
     Data = require("./data"),
-    sax = require("sax");
+    sax = require("sax"),
+    schema_full = {};
 
-var TOTAL_FILES_ENDED = 0;
-var TOTAL_FILES_STARTED = 0;
-var TOTAL_FILES_ERROR = 0;
-
-var Import = function(params, callback) {
+var ImportXml = function(params, callbackImport) {
   var data;
   var full_tag = null;
   var tag = null;
@@ -16,7 +12,15 @@ var Import = function(params, callback) {
   var text;
   var isRef = false;
   var ref = {};
-
+  var result = {
+    TOTAL_REGISTER: 1,
+    TOTAL_REGISTER_STARTED: 0,
+    TOTAL_REGISTER_ENDED: 0,
+    TOTAL_REGISTER_ERROR: 0,
+    params: params,
+    data: [],
+    schema: {}
+  };
 
   var file_data = fs.readFileSync(params.file);
   var saxStream = sax.createStream(true, false);
@@ -26,7 +30,6 @@ var Import = function(params, callback) {
     this._parser.error = null;
     this._parser.resume();
     data = Data;
-    data.uri = params.uri;
   });
 
   saxStream.on("opentag", function(node){
@@ -34,7 +37,6 @@ var Import = function(params, callback) {
     if(!full_tag) {
       full_tag = tag;
       data = Data;
-      data.uri = params.uri;
       data['xml'] = file_data;
     } else {
       full_tag += ">"+tag;
@@ -71,41 +73,33 @@ var Import = function(params, callback) {
     else  
       full_tag = full_tag.replace(new RegExp(name+"$", "i"), "");
     
-    if(name == 'nfeProc') {
-      console.log("Saving: "+file+" - "+TOTAL_FILES_STARTED);
-      //console.log(nfe);
-      callback = function(err, data) {
-        if(err) console.error("Error: "+err+" - "+(TOTAL_FILES_ERROR+=1));
-        else console.log("Saved: "+params.file);
-        TOTAL_FILES_ENDED += 1;
-        if(TOTAL_FILES_ENDED+TOTAL_FILES_ERROR >= TOTAL_FILES) {
-          console.log("TOTAL_FILES_ENDED: "+TOTAL_FILES_ENDED);
-          console.log("TOTAL_FILES_ERROR: "+TOTAL_FILES_ERROR);
-          if(params.mode == "sync") {
-            if(data.uri.match(/^mysql|postgres|sqlite|mongo/g))
-              data.syncSchema({type: "orm", schema: schema_full}, function(){ process.exit(0); });
-            else if(data.uri.match(/^elastic/g))
-              process.exit(0);
-            else process.exit(0);
-            //else if(Data.uri.match(/^mongo/g))
-              //Data.mongooseSave(callback);
-          } else process.exit(0);
+    if(name == params.key_tag) {
+      function callbackSaveSync(err, resultData) {
+        if(err) {
+          result.TOTAL_REGISTER_ERROR+=1;
+          console.error("Error: "+err);
+        } else {
+          result.TOTAL_REGISTER_ENDED+=1;
+        }
+        
+        result.schema = data.generateSchema("orm");
+        
+        if(result.TOTAL_REGISTER_ENDED+result.TOTAL_REGISTER_ERROR >= result.TOTAL_REGISTER) {
+          result.data.push(resultData);
+          callbackImport(null, result);
         }
       }
 
-      if(params.mode == "sync") {
-        var schema_current = Data.generateSchema("orm");
-        for (var field in schema_current) { schema_full[field] = schema_current[field]; }
-        callback(null, {});
-      } else {
-        if(data.uri.match(/^mysql|postgres|sqlite|mongo/g))
-          data.ormSave(callback);
-        else if(data.uri.match(/^elastic/g))
-          data.elasticSave(callback);
-        else callback(null, {});
-        //else if(Data.uri.match(/^mongo/g))
-          //Data.mongooseSave(callback);
-      }
+     
+      if(params.uri.match(/^mysql|postgres|sqlite|mongo/g)) {
+        if(params.mode == "sync") return callbackSaveSync(null, {}); // @FIXME We need fix it
+        else return data.ormSave(params, callbackSaveSync);
+      } else if(params.uri.match(/^elastic/g)) {
+        if(params.mode == "sync") return callbackImport("Elastic dont be synced.", result);
+        else return data.elasticSave(params, callbackSaveSync);
+      } else return callbackImport("Invalid uri.", result);
+      //else if(params.uri.match(/^mongo/g))
+        //data.mongooseSave(params, callbackSaveSync);
     }
   });
 
@@ -117,4 +111,4 @@ var Import = function(params, callback) {
   fs.createReadStream(params.file).pipe(saxStream);  
 }
 
-module.exports.Import = exports.Import = Import;
+module.exports = exports = ImportXml;

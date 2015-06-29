@@ -115,21 +115,27 @@ do
   sleep 7
   case "$driver" in
   "postgres")
-    PGPASSWORD="postgres" psql -h 127.0.0.1 -p $host_port -U $user -c "CREATE DATABASE $db;"
+    cmd="PGPASSWORD=\"$pass\" psql -h 127.0.0.1 -p $host_port -U $user -c \"CREATE DATABASE $db;\""
+    PGPASSWORD=\"$pass\" psql -h 127.0.0.1 -p $host_port -U $user -c "CREATE DATABASE $db;"
     ;;
   "mysql")
+    cmd="mysql -h 127.0.0.1 -P $host_port -u $user -p$pass -e \"CREATE DATABASE $db;\""
     mysql -h 127.0.0.1 -P $host_port -u $user -p$pass -e "CREATE DATABASE $db;"
     ;;
   "mariadb")
+    cmd="mysql -h 127.0.0.1 -P $host_port -u $user -p$pass -e \"CREATE DATABASE $db;\""
     mysql -h 127.0.0.1 -P $host_port -u $user -p$pass -e "CREATE DATABASE $db;"
     ;;
   "mongodb")
+    cmd="echo \"use $db\" | mongo --host 127.0.0.1 --port $host_port #--user $user --pass $pass"
     echo "use $db" | mongo --host 127.0.0.1 --port $host_port #--user $user --pass $pass
     ;;
   *)
     echo "----- $container_name DONT HAVE $db!"
+    cmd="echo null"
     ;;
   esac
+  echo $cmd
   #echo -e "----- STOP CONTAINER: $container_name -----"
   #sudo docker stop $container_name
 done < "$uri_file"
