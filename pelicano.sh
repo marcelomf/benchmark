@@ -39,7 +39,7 @@ fi
 "ip r s cached" \
 "ip n" \
 "ss -putan" \
-"ps aux" \
+"ps auwx" \
 "ps -ef" \
 "env" \
 "set" \
@@ -66,7 +66,8 @@ fi
 "hostname" \
 "lspci" \
 "lsusb"  \
-"lsof"
+"lsof" \
+"dpkg --get-selections"
 do
 	echo -e "$i\n-----------------------------------"
 	eval $i 2> /dev/null || echo ERROR
