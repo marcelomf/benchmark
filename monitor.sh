@@ -1,7 +1,7 @@
 #!/bin/bash 
 # Based on Diego Lima source code https://twitter.com/diegolima
-apt-get install -y sysstat > /dev/null
-PROGS="node|php|python|go|java|rusk|haskell|ruby|Cpu|Mem|Swap|Tasks"
+apt-get install -y sysstat
+PROGS="node|php|python|go|java|rusk|haskell|ruby|Cpu|Mem|Swap|Tasks|.*"
 USERS="marcelo"
 HDD="sda"
 PORTS=":80|:443"

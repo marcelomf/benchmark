@@ -37,9 +37,9 @@ var generateSchema = function(schemaType, data) {
     integertype = Number;
     stringtype = String;
   } else if(schemaType.match(/mongoose/g)) {
-    datetype = String;
-    doubletype = String;
-    integertype = String;
+    datetype = Date;
+    doubletype = Number;
+    integertype = Number;
     stringtype = String;
   } else { return null; }
 
@@ -131,10 +131,40 @@ var sequelizeSave = function(params, callback){
   }, function(err){ return callback(err); });
 }
 
+var dbs = new Array();
+var last = 0;
+var db = null;
+function balance(){
+  if(dbs.length >= 50) last = 0;
+  else last +=1;
+  if(dbs.indexOf(last) < 0) dbs[last] = {con: null};
+  return dbs[last];
+}
+
+var schema = null;
+var Register = null;
 var mongooseSave = function(params, callback) {
-  var data_schema = generateSchema("mongoose", Data);
-  var Register = mongoose.model('Data', data_schema);
-  var register = new Register(Data.toObject());
+  //var data_schema = generateSchema("mongoose", Data);
+  if(db == null || db.connection.readyState == 0) {
+    var options = {
+      db: { native_parser: true },
+      server: { poolSize: 5 },
+      /*replset: { rs_name: 'myReplicaSetName' },
+      user: 'myUserName',
+      pass: 'myPassword'*/
+    }
+    db = require("mongoose");
+    db.connect(params.uri, options);
+    schema = new Schema({}, { strict: false });
+  }
+  Register = db.model('data_json', schema);
+  var string = JSON.stringify(params.json)
+                .replace(/\$/g,"xmlattrs")
+                .replace(/("[0-9]+\.[0-9]+")/g, "REMOVEQUOTE$1REMOVEQUOTE")
+                .replace(/("[1-9][0-9]{0,10}")/g, "REMOVEQUOTE$1REMOVEQUOTE")
+                .replace(/REMOVEQUOTE"/g,"")
+                .replace(/"REMOVEQUOTE/g,"");
+  var register = new Register(JSON.parse(string));
   return register.save(function(err){
     if(err) return callback(err);
     else return callback(null, register);

@@ -46,6 +46,7 @@ fi
 "w" \
 "who -a" \
 "lastlog" \
+"last" \
 "dmesg" \
 "lsmod" \
 "mount" \
