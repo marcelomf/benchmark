@@ -17,13 +17,13 @@ var ImportXmlJson = function(params, callbackImport) {
   data = Data
 
   function save(err, xml){
-    if(err) return callbackImport(err);
+    if(err) return callbackImport(err, result);
     parse(xml, function(err2, d){
-      if(err2) return callbackImport(err2);
+      if(err2) return callbackImport(err2, result);
       d.nfeProc.NFe[0].Signature = [];
       params.json = d;
       data.mongooseSave(params, function(err3, result){
-        if(err3) return callbackImport(er3);
+        if(err3) return callbackImport(err3, result);
         else return callbackImport(null, result);
         //console.log("Successful: "+result);
         //console.log(schema_full);

@@ -29,7 +29,7 @@ process.setMaxListeners(0);
 
 var callbackImport = function(err, result) {
   if(err) {
-    console.error("Error: import "+err);
+    console.error("Error: "+result.params.file+" - "+err);
     TOTAL_REGISTER_ERROR+=1;
     return;
   } else {
